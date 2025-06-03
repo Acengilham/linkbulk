@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Undangan Pernikahan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #b76e79;
+            --primary-dark: #8c5360;
+            --secondary-color: #f8f3f0;
+            --accent-color: #e8c4c4;
+            --text-color: #333;
+            --light-text: #777;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            background-color: var(--white);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary-color);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            position: relative;
+            padding-bottom: 20px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--accent-color);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(183, 110, 121, 0.1);
+        }
+        
+        textarea {
+            min-height: 250px;
+            resize: vertical;
+            line-height: 1.8;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        .template-preview {
+            background-color: var(--secondary-color);
+            border: 1px dashed var(--accent-color);
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            white-space: pre-line;
+            font-family: 'Playfair Display', serif;
+            color: var(--text-color);
+            line-height: 1.8;
+        }
+        
+        .result-container {
+            margin-top: 40px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .nama-tamu-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: var(--white);
+        }
+        
+        .tamu-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
+        
+        .tamu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .remove-tamu {
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .remove-tamu:hover {
+            transform: scale(1.1);
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+        
+        .tab {
+            padding: 12px 25px;
+            background-color: transparent;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            color: var(--light-text);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+            background-color: rgba(183, 110, 121, 0.1);
+        }
+        
+        .tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .copy-btn {
+            background-color: #4CAF50;
+            margin-left: 10px;
+        }
+        
+        .copy-btn:hover {
+            background-color: #3e8e41;
+        }
+        
+        .instructions {
+            background-color: rgba(232, 244, 248, 0.5);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .empty-template {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            background-color: rgba(247, 247, 247, 0.5);
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-template i {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .empty-template h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+        
+        .empty-template p {
+            color: var(--light-text);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .link-preview {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            word-break: break-all;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tab-container {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 5px;
+            }
+            
+            .tab {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Generator Undangan Pernikahan</h1>
+        <br><h5>By Aceng ilham (Nyebar.ID)</h5>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Petunjuk Penggunaan:</h3>
+            <ol>
+                <li>Masukkan template undangan di tab "Template" (gunakan <code>{Nama tamu}</code> dan <code>{Link undangan}</code> sebagai placeholder)</li>
+                <li>Tambahkan daftar nama tamu di tab "Daftar Tamu"</li>
+                <li>Atur format link undangan di tab "Link Undangan"</li>
+                <li>Klik "Generate Undangan" untuk melihat hasil</li>
+                <li>Salin hasil yang sudah digenerate untuk dikirim ke tamu</li>
+            </ol>
+        </div>
+        
+        <div class="tab-container">
+            <div class="tab active" onclick="openTab('template')"><i class="fas fa-file-alt"></i> Template</div>
+            <div class="tab" onclick="openTab('tamu')"><i class="fas fa-users"></i> Daftar Tamu</div>
+            <div class="tab" onclick="openTab('link')"><i class="fas fa-link"></i> Link Undangan</div>
+            <div class="tab" onclick="openTab('result')"><i class="fas fa-envelope"></i> Hasil</div>
+        </div>
+        
+        <div id="template" class="tab-content active">
+            <div class="form-group">
+                <label for="templateText">Template Undangan:</label>
+                <div class="empty-template" id="emptyTemplate">
+                    <i class="fas fa-file-edit"></i>
+                    <h3>Masukkan Template Undangan Anda</h3>
+                    <p>Silahkan masukkan teks template undangan pernikahan Anda di area berikut. Gunakan <code>{Nama tamu}</code> untuk placeholder nama tamu dan <code>{Link undangan}</code> untuk placeholder link undangan.</p>
+                    <button onclick="useDefaultTemplate()"><i class="fas fa-magic"></i> Buat Template</button>
+                </div>
+                <textarea id="templateText" style="display: none;"></textarea>
+            </div>
+        </div>
+        
+        <div id="tamu" class="tab-content">
+            <div class="form-group">
+                <label for="namaTamu"><i class="fas fa-user-plus"></i> Tambahkan Nama Tamu:</label>
+                <input type="text" id="namaTamu" placeholder="Masukkan nama tamu">
+                <div class="action-buttons">
+                    <button onclick="addTamu()"><i class="fas fa-plus"></i> Tambahkan</button>
+                    <button onclick="clearTamuList()" style="background-color: #f44336;"><i class="fas fa-trash"></i> Hapus Semua</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-list"></i> Daftar Tamu:</label>
+                <div class="nama-tamu-list" id="namaTamuList">
+                    <p style="text-align: center; color: var(--light-text);">Belum ada tamu yang ditambahkan</p>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="importTamu"><i class="fas fa-file-import"></i> Import Daftar Tamu:</label>
+                <textarea id="importTamu" placeholder="Masukkan daftar nama tamu, pisahkan dengan koma atau baris baru"></textarea>
+                <button onclick="importTamu()"><i class="fas fa-upload"></i> Import Tamu</button>
+            </div>
+        </div>
+        
+        <div id="link" class="tab-content">
+            <div class="form-group">
+                <label for="baseLink">Link Dasar Undangan:</label>
+                <input type="text" id="baseLink" placeholder="Contoh: https://kamu-dia.invee.net/?invite=" value="https://kamu-dia.invee.net/?invite=">
+                <small class="link-preview" id="linkPreview">Contoh hasil: https://kamu-dia.invee.net/?invite=Nama+Tamu</small>
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-question-circle"></i> Petunjuk:</label>
+                <p>Link akan dibuat secara otomatis dengan menambahkan nama tamu di akhir link dasar. Spasi akan diganti dengan tanda <code>+</code>.</p>
+                <p>Contoh: "Nama Tamu" akan menjadi "Nama+Tamu" dalam link.</p>
+            </div>
+        </div>
+        
+        <div id="result" class="tab-content">
+            <div class="form-group">
+                <button onclick="generateUndangan()"><i class="fas fa-envelope-open-text"></i> Generate Undangan</button>
+            </div>
+            
+            <div class="result-container" id="resultContainer">
+                <div class="form-group action-buttons">
+                    <button onclick="copyAll()" class="copy-btn"><i class="fas fa-copy"></i> Salin Semua</button>
+                    <button onclick="downloadAll()" style="background-color: #2196F3;"><i class="fas fa-download"></i> Download Semua</button>
+                </div>
+                <div id="generatedResults">
+                    <!-- Hasil undangan akan muncul di sini -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tamuList = [];
+        
+        // Initialize template textarea
+        document.addEventListener('DOMContentLoaded', function() {
+            const emptyTemplate = document.getElementById('emptyTemplate');
+            const templateText = document.getElementById('templateText');
+            
+            templateText.addEventListener('focus', function() {
+                emptyTemplate.style.display = 'none';
+                templateText.style.display = 'block';
+            });
+            
+            updateLinkPreview();
+        });
+        
+        function useDefaultTemplate() {
+            const templateText = document.getElementById('templateText');
+            const emptyTemplate = document.getElementById('emptyTemplate');
+            
+            templateText.value = `Kepada Yth,
+Ketik pesanya ya gaes ya...`;
+            
+            emptyTemplate.style.display = 'none';
+            templateText.style.display = 'block';
+            templateText.focus();
+        }
+        
+        function updateLinkPreview() {
+            const baseLink = document.getElementById('baseLink').value;
+            const linkPreview = document.getElementById('linkPreview');
+            
+            if (baseLink) {
+                linkPreview.textContent = `Contoh hasil: ${baseLink}Nama+Tamu`;
+            } else {
+                linkPreview.textContent = "Silahkan masukkan link dasar terlebih dahulu";
+            }
+        }
+        
+        function openTab(tabName) {
+            // Sembunyikan semua tab content
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // Hapus active class dari semua tab
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            // Tampilkan tab yang dipilih dan aktifkan tab button
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        function addTamu() {
+            const namaTamuInput = document.getElementById('namaTamu');
+            const nama = namaTamuInput.value.trim();
+            
+            if (nama) {
+                if (!tamuList.includes(nama)) {
+                    tamuList.push(nama);
+                    updateTamuList();
+                    namaTamuInput.value = '';
+                    namaTamuInput.focus();
+                } else {
+                    alert('Nama tamu sudah ada dalam daftar!');
+                }
+            }
+        }
+        
+        function removeTamu(index) {
+            tamuList.splice(index, 1);
+            updateTamuList();
+        }
+        
+        function clearTamuList() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua daftar tamu?')) {
+                tamuList = [];
+                updateTamuList();
+            }
+        }
+        
+        function updateTamuList() {
+            const namaTamuList = document.getElementById('namaTamuList');
+            namaTamuList.innerHTML = '';
+            
+            if (tamuList.length === 0) {
+                namaTamuList.innerHTML = '<p style="text-align: center; color: var(--light-text);">Belum ada tamu yang ditambahkan</p>';
+                return;
+            }
+            
+            tamuList.forEach((nama, index) => {
+                const tamuItem = document.createElement('div');
+                tamuItem.className = 'tamu-item';
+                tamuItem.innerHTML = `
+                    <span>${nama}</span>
+                    <span class="remove-tamu" onclick="removeTamu(${index})"><i class="fas fa-times"></i></span>
+                `;
+                namaTamuList.appendChild(tamuItem);
+            });
+        }
+        
+        function importTamu() {
+            const importText = document.getElementById('importTamu').value.trim();
+            if (!importText) return;
+            
+            // Pisahkan dengan koma atau baris baru
+            const names = importText.split(/[\n,]+/).map(name => name.trim()).filter(name => name);
+            
+            if (names.length === 0) return;
+            
+            // Tambahkan nama baru yang belum ada di daftar
+            let addedCount = 0;
+            names.forEach(name => {
+                if (name && !tamuList.includes(name)) {
+                    tamuList.push(name);
+                    addedCount++;
+                }
+            });
+            
+            updateTamuList();
+            document.getElementById('importTamu').value = '';
+            alert(`Berhasil menambahkan ${addedCount} nama tamu baru.`);
+        }
+        
+        function generateUndangan() {
+            const template = document.getElementById('templateText').value;
+            const baseLink = document.getElementById('baseLink').value.trim();
+            
+            if (!template) {
+                alert('Silakan masukkan template undangan terlebih dahulu!');
+                openTab('template');
+                return;
+            }
+            
+            if (tamuList.length === 0) {
+                alert('Silakan tambahkan daftar tamu terlebih dahulu!');
+                openTab('tamu');
+                return;
+            }
+            
+            if (!baseLink) {
+                alert('Silakan masukkan link dasar undangan terlebih dahulu!');
+                openTab('link');
+                return;
+            }
+            
+            const resultContainer = document.getElementById('resultContainer');
+            const generatedResults = document.getElementById('generatedResults');
+            
+            generatedResults.innerHTML = '';
+            
+            tamuList.forEach(nama => {
+                // Buang spasi di awal dan akhir nama
+                const cleanNama = nama.trim();
+                
+                // Encode nama untuk URL (ganti spasi dengan +)
+                const encodedNama = cleanNama.replace(/\s+/g, '+');
+                
+                // Buat link undangan lengkap
+                const fullLink = baseLink + encodedNama;
+                
+                // Gantikan placeholder di template
+                const undangan = template
+                    .replace(/{Nama tamu}/g, cleanNama)
+                    .replace(/{Link undangan}/g, fullLink);
+                
+                // Buat elemen untuk hasil
+                const resultItem = document.createElement('div');
+                resultItem.className = 'template-preview';
+                
+                const namaLabel = document.createElement('h3');
+                namaLabel.innerHTML = `<i class="fas fa-user"></i> Untuk: ${cleanNama}`;
+                
+                const content = document.createElement('div');
+                content.innerHTML = undangan.replace(/\n/g, '<br>');
+                
+                const actionButtons = document.createElement('div');
+                actionButtons.className = 'action-buttons';
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Salin';
+                copyBtn.className = 'copy-btn';
+                copyBtn.onclick = function() {
+                    copyToClipboard(undangan);
+                    alert(`Undangan untuk ${cleanNama} telah disalin!`);
+                };
+                
+                const linkBtn = document.createElement('button');
+                linkBtn.innerHTML = '<i class="fas fa-link"></i> Salin Link';
+                linkBtn.style.backgroundColor = '#2196F3';
+                linkBtn.onclick = function() {
+                    copyToClipboard(fullLink);
+                    alert(`Link untuk ${cleanNama} telah disalin!`);
+                };
+                
+                actionButtons.appendChild(copyBtn);
+                actionButtons.appendChild(linkBtn);
+                
+                resultItem.appendChild(namaLabel);
+                resultItem.appendChild(content);
+                resultItem.appendChild(actionButtons);
+                
+                generatedResults.appendChild(resultItem);
+            });
+            
+            resultContainer.style.display = 'block';
+            openTab('result');
+            
+            // Scroll ke hasil
+            setTimeout(() => {
+                resultContainer.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
+        
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        
+        function copyAll() {
+            const template = document.getElementById('templateText').value;
+            const baseLink = document.getElementById('baseLink').value.trim();
+            let allUndangan = '';
+            
+            tamuList.forEach(nama => {
+                const cleanNama = nama.trim();
+                const encodedNama = cleanNama.replace(/\s+/g, '+');
+                const fullLink = baseLink + encodedNama;
+                
+                const undangan = template
+                    .replace(/{Nama tamu}/g, cleanNama)
+                    .replace(/{Link undangan}/g, fullLink);
+                
+                allUndangan += `=== UNDANGAN UNTUK: ${cleanNama} ===\n\n${undangan}\n\n\n`;
+            });
+            
+            copyToClipboard(allUndangan);
+            alert('Semua undangan telah disalin ke clipboard!');
+        }
+        
+        function downloadAll() {
+            const template = document.getElementById('templateText').value;
+            const baseLink = document.getElementById('baseLink').value.trim();
+            let allUndangan = '';
+            
+            tamuList.forEach(nama => {
+                const cleanNama = nama.trim();
+                const encodedNama = cleanNama.replace(/\s+/g, '+');
+                const fullLink = baseLink + encodedNama;
+                
+                const undangan = template
+                    .replace(/{Nama tamu}/g, cleanNama)
+                    .replace(/{Link undangan}/g, fullLink);
+                
+                allUndangan += `=== UNDANGAN UNTUK: ${cleanNama} ===\n\n${undangan}\n\n\n`;
+            });
+            
+            const blob = new Blob([allUndangan], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'undangan-pernikahan.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Update link preview when base link changes
+        document.getElementById('baseLink').addEventListener('input', updateLinkPreview);
+    </script>
+</body>
+</html>
